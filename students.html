@@ -5,55 +5,105 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Students · Student Attendance</title>
+
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="js/students.js"></script>
 </head>
+
 <body>
 <div class="app-shell">
+
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <a class="brand" href="dashboard.html">
       <span class="brand-mark">SA</span>
-      <span><b>Attendance</b><small>ADMIN CONSOLE</small></span>
+      <span>
+        <b>Attendance</b>
+        <small>ADMIN CONSOLE</small>
+      </span>
     </a>
+
     <nav>
-      <a href="dashboard.html" data-nav="dashboard.html"><span>▦</span>Dashboard</a>
-      <a href="students.html" data-nav="students.html"><span>♙</span>Students</a>
-      <a href="attendance.html" data-nav="attendance.html"><span>◷</span>Attendance</a>
-      <a href="reports.html" data-nav="reports.html"><span>▤</span>Reports</a>
-      <a href="settings.html" data-nav="settings.html"><span>⚙</span>Settings</a>
+      <a href="dashboard.html" data-nav="dashboard.html">
+        <span>▦</span>Dashboard
+      </a>
+
+      <a href="students.html" data-nav="students.html">
+        <span>♙</span>Students
+      </a>
+
+      <a href="attendance.html" data-nav="attendance.html">
+        <span>◷</span>Attendance
+      </a>
+
+      <a href="reports.html" data-nav="reports.html">
+        <span>▤</span>Reports
+      </a>
+
+      <a href="settings.html" data-nav="settings.html">
+        <span>⚙</span>Settings
+      </a>
     </nav>
-    <button class="logout" id="logoutBtn">↪ Sign out</button>
+
+    <button class="logout" id="logoutBtn">
+      ↪ Sign out
+    </button>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="main">
+
     <header class="topbar">
-      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        aria-label="Toggle menu"
+      >☰</button>
+
       <div>
         <p class="eyebrow">SCHOOL MANAGEMENT</p>
         <h1>Students</h1>
       </div>
+
       <div class="top-user">
         <span class="avatar">A</span>
-        <span><b id="adminName">Administrator</b><small>Admin</small></span>
+        <span>
+          <b id="adminName">Administrator</b>
+          <small>Admin</small>
+        </span>
       </div>
     </header>
 
     <section class="content">
-      <p class="muted intro">Create, import, search and maintain student records.</p>
 
+      <p class="muted intro">
+        Create, import, search and maintain student records.
+      </p>
+
+      <!-- TOOLBAR -->
       <div class="toolbar">
+
         <input
           id="studentSearch"
+          type="search"
           placeholder="Search name, student number or grade…"
           aria-label="Search students"
         >
 
-        <button class="btn primary" id="addStudentBtn">＋ Add student</button>
+        <button
+          class="btn primary"
+          id="addStudentBtn"
+          type="button"
+        >
+          ＋ Add student
+        </button>
 
-        <label class="btn secondary" for="csvFileInput">
+        <label
+          class="btn secondary"
+          for="csvFileInput"
+        >
           ⬆ Import CSV
         </label>
+
         <input
           id="csvFileInput"
           type="file"
@@ -61,43 +111,116 @@
           hidden
         >
 
-        <button class="btn secondary" id="exportStudents">Export CSV</button>
+        <button
+          class="btn secondary"
+          id="exportStudents"
+          type="button"
+        >
+          Export CSV
+        </button>
+
       </div>
 
+      <!-- STUDENT TABLE -->
       <div class="panel">
         <div id="studentTable" class="table-wrap">
           <p class="muted">Loading students…</p>
         </div>
       </div>
 
+      <!-- ADD / EDIT STUDENT DIALOG -->
       <dialog id="studentDialog" class="dialog">
+
         <form id="studentForm" method="dialog">
+
           <div class="panel-head">
             <h2 id="studentDialogTitle">Add student</h2>
-            <button type="button" class="icon-btn" id="closeStudent">✕</button>
+
+            <button
+              type="button"
+              class="icon-btn"
+              id="closeStudent"
+              aria-label="Close"
+            >
+              ✕
+            </button>
           </div>
 
           <input type="hidden" name="id">
 
           <div class="form-grid">
-            <label>Student number<input name="student_number" required></label>
-            <label>First name<input name="first_name" required></label>
-            <label>Last name<input name="last_name" required></label>
-            <label>Grade / section<input name="grade_section"></label>
-            <label>Email<input name="email" type="email"></label>
-            <label>Status>
+
+            <label>
+              Student number
+              <input
+                name="student_number"
+                required
+              >
+            </label>
+
+            <label>
+              First name
+              <input
+                name="first_name"
+                required
+              >
+            </label>
+
+            <label>
+              Last name
+              <input
+                name="last_name"
+                required
+              >
+            </label>
+
+            <label>
+              Grade / section
+              <input name="grade_section">
+            </label>
+
+            <label>
+              Email
+              <input
+                name="email"
+                type="email"
+              >
+            </label>
+
+            <label>
+              Status
               <select name="status">
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
             </label>
+
           </div>
 
           <div class="dialog-actions">
-            <button type="button" class="btn secondary" id="cancelStudent">Cancel</button>
-            <button class="btn primary" type="submit">Save student</button>
+
+            <button
+              type="button"
+              class="btn secondary"
+              id="cancelStudent"
+            >
+              Cancel
+            </button>
+
+            <button
+              class="btn primary"
+              type="submit"
+            >
+              Save student
+            </button>
+
           </div>
-          <p id="studentError" class="error"></p>
+
+          <p
+            id="studentError"
+            class="error"
+          ></p>
+
         </form>
       </dialog>
 
@@ -105,11 +228,23 @@
   </main>
 </div>
 
-<div id="toast" class="toast" role="status"></div>
+<!-- TOAST NOTIFICATION -->
+<div
+  id="toast"
+  class="toast"
+  role="status"
+></div>
 
+<!-- APPLICATION SCRIPTS -->
 <script src="config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
+
+<!-- QR CODE GENERATOR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- STUDENT MANAGEMENT -->
 <script src="js/students.js"></script>
+
 </body>
 </html>
