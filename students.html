@@ -3,17 +3,88 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Students · Student Attendance</title>
+
   <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* QR CODE DIALOG */
+    #studentQRDialog {
+      width: 95%;
+      max-width: 440px;
+      border: none;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 15px 50px rgba(0,0,0,.2);
+    }
+
+    #studentQRDialog::backdrop {
+      background: rgba(0,0,0,.6);
+    }
+
+    #studentQRCanvas {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 250px;
+      padding: 12px;
+      background: white;
+      border-radius: 10px;
+    }
+
+    #studentQRCanvas img,
+    #studentQRCanvas canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .qr-description {
+      text-align: center;
+      color: #777;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    /* CSV IMPORT */
+    #csvFileInput {
+      display: none;
+    }
+
+    .csv-import-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* STUDENT ACTION BUTTONS */
+    .table-action {
+      margin: 2px;
+      cursor: pointer;
+    }
+
+    .qr-action {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 10px;
+    }
+  </style>
 </head>
 
 <body>
+
 <div class="app-shell">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
+
     <a class="brand" href="dashboard.html">
       <span class="brand-mark">SA</span>
+
       <span>
         <b>Attendance</b>
         <small>ADMIN CONSOLE</small>
@@ -21,20 +92,46 @@
     </a>
 
     <nav>
-      <a href="dashboard.html" data-nav="dashboard.html"><span>▦</span>Dashboard</a>
-      <a href="students.html" data-nav="students.html"><span>♙</span>Students</a>
-      <a href="attendance.html" data-nav="attendance.html"><span>◷</span>Attendance</a>
-      <a href="reports.html" data-nav="reports.html"><span>▤</span>Reports</a>
-      <a href="settings.html" data-nav="settings.html"><span>⚙</span>Settings</a>
+      <a href="dashboard.html" data-nav="dashboard.html">
+        <span>▦</span> Dashboard
+      </a>
+
+      <a href="students.html" data-nav="students.html">
+        <span>♙</span> Students
+      </a>
+
+      <a href="attendance.html" data-nav="attendance.html">
+        <span>◷</span> Attendance
+      </a>
+
+      <a href="reports.html" data-nav="reports.html">
+        <span>▤</span> Reports
+      </a>
+
+      <a href="settings.html" data-nav="settings.html">
+        <span>⚙</span> Settings
+      </a>
     </nav>
 
-    <button class="logout" id="logoutBtn">↪ Sign out</button>
+    <button class="logout" id="logoutBtn" type="button">
+      ↪ Sign out
+    </button>
+
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="main">
 
+    <!-- TOP BAR -->
     <header class="topbar">
-      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        type="button"
+        aria-label="Toggle menu">
+        ☰
+      </button>
 
       <div>
         <p class="eyebrow">SCHOOL MANAGEMENT</p>
@@ -42,21 +139,27 @@
       </div>
 
       <div class="top-user">
+
         <span class="avatar">A</span>
+
         <span>
           <b id="adminName">Administrator</b>
           <small>Admin</small>
         </span>
+
       </div>
+
     </header>
 
+    <!-- PAGE CONTENT -->
     <section class="content">
 
       <p class="muted intro">
         Create, import, search and maintain student records.
+        Generate and print individual student QR codes.
       </p>
 
-      <!-- TOOLBAR: ONLY ONE CSV IMPORT BUTTON -->
+      <!-- TOOLBAR -->
       <div class="toolbar">
 
         <input
@@ -66,11 +169,17 @@
           aria-label="Search students"
         >
 
-        <button class="btn primary" id="addStudentBtn" type="button">
+        <button
+          class="btn primary"
+          id="addStudentBtn"
+          type="button">
           ＋ Add student
         </button>
 
-        <label class="btn secondary" for="csvFileInput">
+        <!-- ONLY ONE CSV IMPORT BUTTON -->
+        <label
+          class="btn secondary csv-import-label"
+          for="csvFileInput">
           ⬆ Import CSV
         </label>
 
@@ -81,27 +190,47 @@
           hidden
         >
 
-        <button class="btn secondary" id="exportStudents" type="button">
-          Export CSV
+        <button
+          class="btn secondary"
+          id="exportStudents"
+          type="button">
+          ⬇ Export CSV
         </button>
 
       </div>
 
       <!-- STUDENT TABLE -->
       <div class="panel">
+
         <div id="studentTable" class="table-wrap">
-          <p class="muted">Loading students…</p>
+
+          <p class="muted">
+            Loading students…
+          </p>
+
         </div>
+
       </div>
 
-      <!-- STUDENT FORM -->
+      <!-- ADD / EDIT STUDENT DIALOG -->
       <dialog id="studentDialog" class="dialog">
 
         <form id="studentForm" method="dialog">
 
           <div class="panel-head">
-            <h2 id="studentDialogTitle">Add student</h2>
-            <button type="button" class="icon-btn" id="closeStudent">✕</button>
+
+            <h2 id="studentDialogTitle">
+              Add student
+            </h2>
+
+            <button
+              type="button"
+              class="icon-btn"
+              id="closeStudent"
+              aria-label="Close dialog">
+              ✕
+            </button>
+
           </div>
 
           <input type="hidden" name="id">
@@ -110,31 +239,55 @@
 
             <label>
               Student number
-              <input name="student_number" required>
+
+              <input
+                name="student_number"
+                type="text"
+                placeholder="e.g. 2026-0001"
+                required>
             </label>
 
             <label>
               First name
-              <input name="first_name" required>
+
+              <input
+                name="first_name"
+                type="text"
+                placeholder="First name"
+                required>
             </label>
 
             <label>
               Last name
-              <input name="last_name" required>
+
+              <input
+                name="last_name"
+                type="text"
+                placeholder="Last name"
+                required>
             </label>
 
             <label>
               Grade / section
-              <input name="grade_section">
+
+              <input
+                name="grade_section"
+                type="text"
+                placeholder="e.g. Grade 6 - St. Peter">
             </label>
 
             <label>
               Email
-              <input name="email" type="email">
+
+              <input
+                name="email"
+                type="email"
+                placeholder="student@example.com">
             </label>
 
             <label>
               Status
+
               <select name="status">
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -144,31 +297,59 @@
           </div>
 
           <div class="dialog-actions">
-            <button type="button" class="btn secondary" id="cancelStudent">
+
+            <button
+              type="button"
+              class="btn secondary"
+              id="cancelStudent">
               Cancel
             </button>
 
-            <button class="btn primary" type="submit">
+            <button
+              class="btn primary"
+              type="submit">
               Save student
             </button>
+
           </div>
 
-          <p id="studentError" class="error"></p>
+          <p
+            id="studentError"
+            class="error"
+            role="alert">
+          </p>
 
         </form>
+
       </dialog>
 
     </section>
+
   </main>
+
 </div>
 
-<div id="toast" class="toast" role="status"></div>
+<!-- TOAST NOTIFICATION -->
+<div
+  id="toast"
+  class="toast"
+  role="status"
+  aria-live="polite">
+</div>
 
 <!-- APPLICATION SCRIPTS -->
+<!-- Load these in this exact order -->
+
 <script src="config.js"></script>
+
 <script src="js/api.js"></script>
+
 <script src="js/auth.js"></script>
+
+<!-- QR CODE LIBRARY -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- STUDENT MANAGEMENT AND QR GENERATION -->
 <script src="js/students.js"></script>
 
 </body>
