@@ -5,14 +5,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Students · Student Attendance</title>
-
   <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 <div class="app-shell">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <a class="brand" href="dashboard.html">
       <span class="brand-mark">SA</span>
@@ -23,41 +21,20 @@
     </a>
 
     <nav>
-      <a href="dashboard.html" data-nav="dashboard.html">
-        <span>▦</span>Dashboard
-      </a>
-
-      <a href="students.html" data-nav="students.html">
-        <span>♙</span>Students
-      </a>
-
-      <a href="attendance.html" data-nav="attendance.html">
-        <span>◷</span>Attendance
-      </a>
-
-      <a href="reports.html" data-nav="reports.html">
-        <span>▤</span>Reports
-      </a>
-
-      <a href="settings.html" data-nav="settings.html">
-        <span>⚙</span>Settings
-      </a>
+      <a href="dashboard.html" data-nav="dashboard.html"><span>▦</span>Dashboard</a>
+      <a href="students.html" data-nav="students.html"><span>♙</span>Students</a>
+      <a href="attendance.html" data-nav="attendance.html"><span>◷</span>Attendance</a>
+      <a href="reports.html" data-nav="reports.html"><span>▤</span>Reports</a>
+      <a href="settings.html" data-nav="settings.html"><span>⚙</span>Settings</a>
     </nav>
 
-    <button class="logout" id="logoutBtn">
-      ↪ Sign out
-    </button>
+    <button class="logout" id="logoutBtn">↪ Sign out</button>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="main">
 
     <header class="topbar">
-      <button
-        class="menu-btn"
-        id="menuBtn"
-        aria-label="Toggle menu"
-      >☰</button>
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
 
       <div>
         <p class="eyebrow">SCHOOL MANAGEMENT</p>
@@ -79,7 +56,7 @@
         Create, import, search and maintain student records.
       </p>
 
-      <!-- TOOLBAR -->
+      <!-- TOOLBAR: ONLY ONE CSV IMPORT BUTTON -->
       <div class="toolbar">
 
         <input
@@ -89,18 +66,11 @@
           aria-label="Search students"
         >
 
-        <button
-          class="btn primary"
-          id="addStudentBtn"
-          type="button"
-        >
+        <button class="btn primary" id="addStudentBtn" type="button">
           ＋ Add student
         </button>
 
-        <label
-          class="btn secondary"
-          for="csvFileInput"
-        >
+        <label class="btn secondary" for="csvFileInput">
           ⬆ Import CSV
         </label>
 
@@ -111,11 +81,7 @@
           hidden
         >
 
-        <button
-          class="btn secondary"
-          id="exportStudents"
-          type="button"
-        >
+        <button class="btn secondary" id="exportStudents" type="button">
           Export CSV
         </button>
 
@@ -128,22 +94,14 @@
         </div>
       </div>
 
-      <!-- ADD / EDIT STUDENT DIALOG -->
+      <!-- STUDENT FORM -->
       <dialog id="studentDialog" class="dialog">
 
         <form id="studentForm" method="dialog">
 
           <div class="panel-head">
             <h2 id="studentDialogTitle">Add student</h2>
-
-            <button
-              type="button"
-              class="icon-btn"
-              id="closeStudent"
-              aria-label="Close"
-            >
-              ✕
-            </button>
+            <button type="button" class="icon-btn" id="closeStudent">✕</button>
           </div>
 
           <input type="hidden" name="id">
@@ -152,26 +110,17 @@
 
             <label>
               Student number
-              <input
-                name="student_number"
-                required
-              >
+              <input name="student_number" required>
             </label>
 
             <label>
               First name
-              <input
-                name="first_name"
-                required
-              >
+              <input name="first_name" required>
             </label>
 
             <label>
               Last name
-              <input
-                name="last_name"
-                required
-              >
+              <input name="last_name" required>
             </label>
 
             <label>
@@ -181,10 +130,7 @@
 
             <label>
               Email
-              <input
-                name="email"
-                type="email"
-              >
+              <input name="email" type="email">
             </label>
 
             <label>
@@ -198,28 +144,16 @@
           </div>
 
           <div class="dialog-actions">
-
-            <button
-              type="button"
-              class="btn secondary"
-              id="cancelStudent"
-            >
+            <button type="button" class="btn secondary" id="cancelStudent">
               Cancel
             </button>
 
-            <button
-              class="btn primary"
-              type="submit"
-            >
+            <button class="btn primary" type="submit">
               Save student
             </button>
-
           </div>
 
-          <p
-            id="studentError"
-            class="error"
-          ></p>
+          <p id="studentError" class="error"></p>
 
         </form>
       </dialog>
@@ -228,22 +162,13 @@
   </main>
 </div>
 
-<!-- TOAST NOTIFICATION -->
-<div
-  id="toast"
-  class="toast"
-  role="status"
-></div>
+<div id="toast" class="toast" role="status"></div>
 
 <!-- APPLICATION SCRIPTS -->
 <script src="config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
-
-<!-- QR CODE GENERATOR -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-<!-- STUDENT MANAGEMENT -->
 <script src="js/students.js"></script>
 
 </body>
