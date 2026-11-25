@@ -1,4 +1,3 @@
-
 if (Auth.guard()) {
   let students = [];
 
@@ -365,6 +364,252 @@ if (Auth.guard()) {
     win.document.close();
   };
 
+  // ---------- BULK STUDENT QR CODES ----------
+  // Uses the same existing API endpoint as individual QR generation.
+  // Generating a new token invalidates that student's previous QR code.
+  const bulkQRButton = document.createElement("button");
+  bulkQRButton.type = "button";
+  bulkQRButton.className = "btn secondary";
+  bulkQRButton.textContent = "Generate All QR Codes";
+  bulkQRButton.id = "generateAllStudentQR";
+
+  const addStudentButton = document.getElementById("addStudentBtn");
+  if (addStudentButton?.parentElement) {
+    addStudentButton.parentElement.insertBefore(
+      bulkQRButton,
+      addStudentButton.nextSibling
+    );
+  }
+
+  const bulkQRDialog = document.createElement("dialog");
+  bulkQRDialog.className = "dialog";
+  bulkQRDialog.style.width = "min(1100px, 96%)";
+  bulkQRDialog.style.maxWidth = "1100px";
+  bulkQRDialog.innerHTML = `
+    <div class="panel-head">
+      <div>
+        <h2 style="margin:0">All Student QR Codes</h2>
+        <p id="bulkQRStatus" class="muted" style="margin:4px 0 0">Ready to generate.</p>
+      </div>
+      <button type="button" class="icon-btn" id="closeBulkStudentQR" aria-label="Close">✕</button>
+    </div>
+    <p class="muted" style="font-size:12px">
+      Each QR code contains a private student token. Keep printed copies secure.
+    </p>
+    <div id="bulkQRGrid" style="
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+      gap:14px;
+      max-height:65vh;
+      overflow:auto;
+      padding:8px 2px;
+    "></div>
+    <p id="bulkQRError" class="error"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn secondary" id="printAllStudentQR" disabled>Print All</button>
+      <button type="button" class="btn primary" id="doneBulkStudentQR">Done</button>
+    </div>
+  `;
+  document.body.appendChild(bulkQRDialog);
+
+  let bulkQRImages = [];
+
+  document.getElementById("closeBulkStudentQR").onclick =
+  document.getElementById("doneBulkStudentQR").onclick = () => bulkQRDialog.close();
+
+  function studentDisplayName(student) {
+    return student.full_name || student.name ||
+      [student.first_name, student.last_name].filter(Boolean).join(" ") ||
+      "Student";
+  }
+
+  function studentDisplayNumber(student) {
+    return student.student_number || student.student_id || student.id || "";
+  }
+
+  function createBulkQRCard(student, token) {
+    const card = document.createElement("div");
+    card.style.cssText =
+      "border:1px solid var(--border,#ddd);border-radius:10px;padding:12px;" +
+      "text-align:center;break-inside:avoid;background:#fff;color:#111;";
+
+    const name = document.createElement("h3");
+    name.textContent = studentDisplayName(student);
+    name.style.cssText = "font-size:14px;margin:0 0 4px;";
+
+    const number = document.createElement("p");
+    number.textContent = studentDisplayNumber(student);
+    number.style.cssText = "font-size:12px;margin:0 0 8px;color:#555;";
+
+    const qrBox = document.createElement("div");
+    qrBox.style.cssText =
+      "display:flex;justify-content:center;align-items:center;min-height:160px;";
+
+    card.append(name, number, qrBox);
+
+    new QRCode(qrBox, {
+      text: token,
+      width: 160,
+      height: 160,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    const canvas = qrBox.querySelector("canvas");
+    const img = qrBox.querySelector("img");
+    const image = canvas
+      ? canvas.toDataURL("image/png")
+      : (img?.src || null);
+
+    if (!image) {
+      throw new Error(`Could not create QR image for ${studentDisplayName(student)}.`);
+    }
+
+    return {
+      card,
+      image,
+      name: studentDisplayName(student),
+      number: studentDisplayNumber(student)
+    };
+  }
+
+  async function generateAllStudentQR() {
+    if (!students.length) {
+      notify("There are no students to generate QR codes for.");
+      return;
+    }
+
+    if (typeof QRCode === "undefined") {
+      notify("QR library is missing. Add the QRCode.js script to students.html.");
+      return;
+    }
+
+    const confirmed = confirm(
+      `Generate new QR codes for all ${students.length} loaded students? ` +
+      "This replaces each student's previous QR token, so old QR codes will stop working."
+    );
+    if (!confirmed) return;
+
+    const grid = document.getElementById("bulkQRGrid");
+    const status = document.getElementById("bulkQRStatus");
+    const errorBox = document.getElementById("bulkQRError");
+    const printButton = document.getElementById("printAllStudentQR");
+
+    bulkQRImages = [];
+    grid.innerHTML = "";
+    errorBox.textContent = "";
+    printButton.disabled = true;
+    status.textContent = `Generating 0 of ${students.length}...`;
+    bulkQRDialog.showModal();
+
+    let succeeded = 0;
+    const failures = [];
+
+    for (let index = 0; index < students.length; index++) {
+      const student = students[index];
+      const id = student.id;
+
+      try {
+        if (id === undefined || id === null || id === "") {
+          throw new Error("Student record has no database ID.");
+        }
+
+        const result = await API.post(
+          `/api/users/${encodeURIComponent(id)}/qr-token`,
+          {}
+        );
+
+        if (!result?.qrToken) {
+          throw new Error(result?.message || "The API did not return a QR token.");
+        }
+
+        const item = createBulkQRCard(student, result.qrToken);
+        grid.appendChild(item.card);
+        bulkQRImages.push(item);
+        succeeded++;
+      } catch (e) {
+        failures.push(
+          `${studentDisplayName(student)} (${studentDisplayNumber(student)}): ` +
+          (e.message || "QR generation failed")
+        );
+      }
+
+      status.textContent =
+        `Processed ${index + 1} of ${students.length} · ` +
+        `${succeeded} generated · ${failures.length} failed`;
+    }
+
+    printButton.disabled = bulkQRImages.length === 0;
+
+    if (failures.length) {
+      errorBox.textContent =
+        "Some QR codes could not be generated:\n" + failures.join("\n");
+      errorBox.style.whiteSpace = "pre-line";
+    } else {
+      errorBox.textContent = "";
+    }
+
+    if (!succeeded) {
+      status.textContent = "No QR codes were generated.";
+    } else {
+      status.textContent =
+        `Finished: ${succeeded} QR codes generated` +
+        (failures.length ? `, ${failures.length} failed.` : ".");
+    }
+  }
+
+  bulkQRButton.onclick = generateAllStudentQR;
+
+  document.getElementById("printAllStudentQR").onclick = () => {
+    if (!bulkQRImages.length) {
+      return notify("Generate the QR codes first.");
+    }
+
+    const win = window.open("", "_blank", "width=1000,height=800");
+    if (!win) return notify("Allow pop-ups to print all QR codes.");
+
+    const cards = bulkQRImages.map(item => `
+      <article class="student-card">
+        <h3>${safe(item.name)}</h3>
+        <p>${safe(item.number)}</p>
+        <img src="${item.image}" alt="QR code for ${safe(item.name)}">
+        <small>Student Attendance QR Code</small>
+      </article>
+    `).join("");
+
+    win.document.write(`<!doctype html>
+      <html>
+      <head>
+        <title>All Student QR Codes</title>
+        <style>
+          *{box-sizing:border-box}
+          body{font-family:Arial,sans-serif;margin:18px;color:#111}
+          .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+          .student-card{
+            border:1px solid #bbb;border-radius:8px;padding:12px;
+            text-align:center;break-inside:avoid;page-break-inside:avoid
+          }
+          h3{font-size:14px;margin:0 0 4px}
+          p{font-size:12px;margin:0 0 8px}
+          img{display:block;width:150px;height:150px;object-fit:contain;margin:0 auto 6px}
+          small{font-size:10px}
+          @media print{
+            body{margin:8mm}
+            .grid{gap:8px}
+            .student-card{border:1px solid #999}
+            @page{size:A4 portrait;margin:10mm}
+          }
+        </style>
+      </head>
+      <body>
+        <div class="grid">${cards}</div>
+        <script>window.onload=()=>window.print();<\/script>
+      </body>
+      </html>`);
+    win.document.close();
+  };
+
   // ---------- EDIT STUDENT ----------
   function edit(id) {
     const s = students.find(x => String(x.id) === String(id));
@@ -723,7 +968,7 @@ if (Auth.guard()) {
     const validRecords = csvRecords.filter(r => !r.error);
 
     if (!validRecords.length) {
-      message.textContent = "There are no valid records to import.";
+      message.textContent = "There are no valid student records to import.";
       return;
     }
 
